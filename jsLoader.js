@@ -10,7 +10,8 @@ jsLoader = function(od) {
 		'minify' : false,
 		'gzip' : false,
 		'cache' : false,
-		'srcpath' : ''
+		'srcpath' : '',
+		'async' : true
 	};
 	
 	this.set = function(od){
@@ -33,6 +34,10 @@ jsLoader = function(od) {
 			var script = document.createElement("script");
 			script.type = "text/javascript";
 			script.src = options.srcpath+response.outfiles[i];
+			if(options.async){
+				console.log(options.async);
+				script.async ="async";
+			}
 			document.body.appendChild(script);
 		}
 		/*
