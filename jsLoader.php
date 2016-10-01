@@ -12,6 +12,7 @@ $o["concat"] = false;
 $o["minify"] = false;
 $o["gzip"] = false;
 $o["cache"] = false;
+$o["skipmin"] = true;
 
 $outpath = $o["root"] . $o["outpath"];
 
@@ -38,6 +39,12 @@ foreach ($files as $file) {
 	$baseName = $pathParts['basename'];
 	$fileExtension = $pathParts['extension'];
 	$fileName = $pathParts['filename'];
+	
+	if($o['skipmin']){
+		if (strpos($fileName, '.min') !== false) {
+			continue;
+		}
+	}
 
 	array_push($fileNames, $baseName);
 	$outFile = $baseName;
