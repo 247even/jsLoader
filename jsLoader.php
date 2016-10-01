@@ -29,6 +29,7 @@ $pf = $o['path'] . $o['filter'];
 $files = glob($pf, GLOB_BRACE);
 $fileNames = array();
 $outFiles = array();
+$response['outfiles'] = array();
 
 foreach ($files as $file) {
 
@@ -39,23 +40,26 @@ foreach ($files as $file) {
 	$fileName = $pathParts['filename'];
 
 	array_push($fileNames, $baseName);
+	$outFile = $baseName;
 
-	$fileContent = file_get_contents($file);
+	if ($o['minify'] || $o['concat']) {
 
-	if ($o['minify']) {
-		$fileContent = \JShrink\Minifier::minify($fileContent);
+		$fileContent = file_get_contents($file);
+
+		if ($o['minify']) {
+			$fileContent = \JShrink\Minifier::minify($fileContent);
+			$outFile = $fileName . '.min.' . $fileExtension;
+		}
+
+		if ($o['concat']) {
+			$concatContent = $concatContent . $fileContent;
+			$fileContent = $concatContent;
+		} else {
+			file_put_contents($outpath . $outFile, $fileContent);
+			array_push($response['outfiles'], $outFile);
+		}
+		
 	}
-
-	if ($o['concat']) {
-		$concatContent = $concatContent . $fileContent;
-		$fileContent = $concatContent;
-	} else {
-		$outFile = $fileName . '.min.' . $fileExtension;
-		file_put_contents($outpath . $outFile, $fileContent);
-		array_push($outFiles, $outFile);
-		$response['outfiles'] = $outFiles;
-	}
-
 }
 
 if ($o['concat']) {
@@ -64,13 +68,12 @@ if ($o['concat']) {
 	if ($o['minify']) {
 		$outFile = $pathName . '.min.' . $fileExtension;
 	}
-
 	file_put_contents($outpath . $outExt, $fileContent);
-	array_push($outFiles, $outFile);
-	$response['outfiles'] = $outFiles;
+
+	array_push($response['outfiles'], $outFile);
 }
 
-$response['paths'] = $files;
+//$response['paths'] = $files;
 $response['names'] = $fileNames;
 
 echo json_encode($response);
